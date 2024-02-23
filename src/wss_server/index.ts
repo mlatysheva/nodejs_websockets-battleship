@@ -1,5 +1,8 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { COMMAND } from '../constants/commands';
+import { createUser } from './handlers/user';
+import { createRoom } from './handlers/room';
+import { IBsWebsocket } from '../models/IBsWebsocket';
 
 export const startWsServer = (): void => {
   const WSS_PORT = process.env.WSS_PORT || 3000;
@@ -8,29 +11,37 @@ export const startWsServer = (): void => {
     console.log(`Web Socket server is running on ${WSS_PORT} port`);
   });
 
-  wsServer.on('connection', (ws: WebSocket, req) => {
+  wsServer.on('connection', (ws: IBsWebsocket, req) => {
     
     ws.on('message', (message: string) => {
       const request = JSON.parse(message);
       const command = request.type;
-      const payload = JSON.parse(request.data);
+      console.log('request', request);
 
       switch (command) {
         case COMMAND.reg: {
-          const response = {
-            name: payload.name,
-            index: Date.now(),
-            error: false,
-            errorText: '',
-          };
-          ws.send(            
-            JSON.stringify({
-              type: COMMAND.reg,
-              data: JSON.stringify(response),
-              id: 0,
-            }),     
-          )          
-          console.log(response);
+          const payload = JSON.parse(request.data);
+          const response = createUser(payload.name, ws);
+          ws.send(response);
+          break;
+        };
+        case COMMAND.createRoom: {
+          // const response = {
+          //   name: payload.name,
+          //   index: Date.now(),
+          //   error: false,
+          //   errorText: '',
+          // };
+          // ws.send(            
+          //   JSON.stringify({
+          //     type: COMMAND.reg,
+          //     data: JSON.stringify(response),
+          //     id: 0,
+          //   }),     
+          // )          
+          // console.log(response);
+          const response = createRoom(ws);
+          ws.send(response);
           break;
         }
       }
