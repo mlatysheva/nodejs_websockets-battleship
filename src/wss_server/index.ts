@@ -1,8 +1,9 @@
-import WebSocket, { WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import { COMMAND } from '../constants/commands';
 import { createUser } from './handlers/user';
-import { createRoom } from './handlers/room';
+import { createRoom, updateRoom } from './handlers/room';
 import { IBsWebsocket } from '../models/IBsWebsocket';
+import { updateWinners } from './handlers/winners';
 
 export const startWsServer = (): void => {
   const WSS_PORT = process.env.WSS_PORT || 3000;
@@ -21,27 +22,17 @@ export const startWsServer = (): void => {
       switch (command) {
         case COMMAND.reg: {
           const payload = JSON.parse(request.data);
-          const response = createUser(payload.name, ws);
-          ws.send(response);
+          const user = createUser(payload.name, ws);
+          ws.send(user);
           break;
         };
         case COMMAND.createRoom: {
-          // const response = {
-          //   name: payload.name,
-          //   index: Date.now(),
-          //   error: false,
-          //   errorText: '',
-          // };
-          // ws.send(            
-          //   JSON.stringify({
-          //     type: COMMAND.reg,
-          //     data: JSON.stringify(response),
-          //     id: 0,
-          //   }),     
-          // )          
-          // console.log(response);
-          const response = createRoom(ws);
-          ws.send(response);
+          createRoom(ws);
+          wsServer.clients.forEach((client) => {
+            client.send(updateRoom());
+          });
+          const winners = updateWinners([]);
+          ws.send(winners);
           break;
         }
       }

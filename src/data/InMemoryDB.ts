@@ -1,14 +1,17 @@
 import { IBsWebsocket } from '../models/IBsWebsocket';
 import { IRoom } from '../models/IRoom';
 import { IUser, TUserPayload } from '../models/IUser';
+import { IWinner } from '../models/IWinner';
 
 class InMemoryDB {
   public users: IUser[];
   public rooms: IRoom[];
+  public winners: IWinner[];
 
   constructor() {
     this.users = [];
     this.rooms = [];
+    this.winners = [];
   }
 
   userExists = (name: string) => {
@@ -32,6 +35,21 @@ class InMemoryDB {
     this.rooms.push(room);
     return room;
   };
+
+  updateWinners = (data: IWinner[]) => {
+    this.winners = data;
+    return this.winners;
+  }
+
+  addUserToRoom = (ws: IBsWebsocket, roomId: number) => {
+    const roomIndex = this.rooms.findIndex((room) => room.roomId === roomId);
+    this.rooms[roomIndex].roomUsers.push({index: ws.index, name: ws.name});
+    return this.rooms[roomIndex];
+  }
+
+  getRooms = () => {
+    return this.rooms;
+  }
 }
 
 export default new InMemoryDB();
