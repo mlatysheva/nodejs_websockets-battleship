@@ -1,9 +1,10 @@
 import { WebSocketServer } from "ws";
 import { COMMAND } from '../constants/commands';
 import { createUser } from './handlers/user';
-import { createRoom, updateRoom } from './handlers/room';
+import { addUserToRoom, createRoom, updateRoom } from './handlers/room';
 import { IBsWebsocket } from '../models/IBsWebsocket';
 import { updateWinners } from './handlers/winners';
+import { createGame } from './handlers/game';
 
 export const startWsServer = (): void => {
   const WSS_PORT = process.env.WSS_PORT || 3000;
@@ -22,8 +23,12 @@ export const startWsServer = (): void => {
       switch (command) {
         case COMMAND.reg: {
           const payload = JSON.parse(request.data);
-          const user = createUser(payload.name, ws);
-          ws.send(user);
+          const userReponse = createUser(payload.name, ws);
+          ws.send(userReponse);
+          wsServer.clients.forEach((client) => {
+            client.send(updateRoom());
+            client.send(updateWinners([]));
+          });
           break;
         };
         case COMMAND.createRoom: {
@@ -31,10 +36,26 @@ export const startWsServer = (): void => {
           wsServer.clients.forEach((client) => {
             client.send(updateRoom());
           });
-          const winners = updateWinners([]);
-          ws.send(winners);
           break;
-        }
+        };
+        case COMMAND.addUserToRoom: {
+          const indexRoom = JSON.parse(request.data).indexRoom;
+          const userReponse = addUserToRoom(ws, indexRoom);
+          const error = JSON.parse(userReponse).type === 'error';
+          if (error) {
+            ws.send(userReponse);            
+          } else {
+            wsServer.clients.forEach((client) => {
+              client.send(updateRoom());
+            });          
+            const game = createGame(ws.index, indexRoom);
+            wsServer.clients.forEach((client) => {
+              client.send(userReponse);
+              client.send(game);
+            });
+          }
+          break;
+        };
       }
     });
 

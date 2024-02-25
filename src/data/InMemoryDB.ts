@@ -1,4 +1,5 @@
 import { IBsWebsocket } from '../models/IBsWebsocket';
+import { IGame } from '../models/IGame';
 import { IRoom } from '../models/IRoom';
 import { IUser, TUserPayload } from '../models/IUser';
 import { IWinner } from '../models/IWinner';
@@ -7,11 +8,13 @@ class InMemoryDB {
   public users: IUser[];
   public rooms: IRoom[];
   public winners: IWinner[];
+  public game: IGame;
 
   constructor() {
     this.users = [];
     this.rooms = [];
     this.winners = [];
+    this.game = {idGame: 0, idPlayer: 0};
   }
 
   userExists = (name: string) => {
@@ -43,8 +46,29 @@ class InMemoryDB {
 
   addUserToRoom = (ws: IBsWebsocket, roomId: number) => {
     const roomIndex = this.rooms.findIndex((room) => room.roomId === roomId);
-    this.rooms[roomIndex].roomUsers.push({index: ws.index, name: ws.name});
-    return this.rooms[roomIndex];
+    const room = this.rooms[roomIndex];
+    if (room) {
+      room.roomUsers.push({index: ws.index, name: ws.name});
+      this.removeRoom(roomId);
+      this.game.idPlayer = ws.index;
+      return room;
+    }    
+  }
+
+  getRoomById = (roomId: number) => {
+    const room = this.rooms.find((room) => room.roomId === roomId);
+    return room;
+  }
+
+  removeRoom = (roomId: number) => {
+    const roomIndex = this.rooms.findIndex((room) => room.roomId === roomId);
+    this.rooms.splice(roomIndex, 1);
+  }
+
+  createGame = (roomId: number, playerId: number) => { 
+    this.game.idGame = roomId;
+    this.game.idPlayer = playerId;
+    return this.game;
   }
 
   getRooms = () => {
