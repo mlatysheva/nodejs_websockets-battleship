@@ -1,0 +1,16 @@
+export const COMMAND = {
+  reg: 'reg',
+  createGame: "create_game",
+  startGame: "start_game",
+  addShips: "add_ships",
+  randomAttack: "random_attack",
+  updateGame: "update_game",
+  turn: "turn",
+  attack: "attack",
+  finish: "finish",
+  createRoom: 'create_room',
+  updateRoom: 'update_room',
+  addUserToRoom: 'add_user_to_room',
+  singlePlayer: 'single_play',
+  updateWinners: 'update_winners',
+}
