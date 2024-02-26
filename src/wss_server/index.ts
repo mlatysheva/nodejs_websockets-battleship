@@ -13,17 +13,19 @@ export const startWsServer = (): void => {
     console.log(`Web Socket server is running on ${WSS_PORT} port`);
   });
 
-  wsServer.on('connection', (ws: IBsWebsocket, req) => {
+  wsServer.on('connection', (ws: IBsWebsocket) => {
     
     ws.on('message', (message: string) => {
       const request = JSON.parse(message);
       const command = request.type;
-      console.log('request', request);
+      console.log('Message received:', request);
 
       switch (command) {
         case COMMAND.reg: {
           const payload = JSON.parse(request.data);
           const userReponse = createUser(payload.name, ws);
+          console.log('User response:', userReponse);
+
           ws.send(userReponse);
           wsServer.clients.forEach((client) => {
             client.send(updateRoom());
@@ -43,23 +45,26 @@ export const startWsServer = (): void => {
           const userReponse = addUserToRoom(ws, indexRoom);
           const error = JSON.parse(userReponse).type === 'error';
           if (error) {
-            ws.send(userReponse);            
+            ws.send(userReponse);  
           } else {
-            wsServer.clients.forEach((client) => {
-              client.send(updateRoom());
-            });          
-            const game = createGame(ws.index, indexRoom);
+            const game = createGame(indexRoom, ws.index);
             wsServer.clients.forEach((client) => {
               client.send(userReponse);
               client.send(game);
-            });
+              client.send(updateRoom());
+            });          
           }
+          break;
+        };
+        case COMMAND.addShips: {
+          const data = JSON.parse(request.data);          
           break;
         };
       }
     });
 
     ws.on('close', () => {
+      console.log('The player has left the game', ws.index, ws.name);
       ws.close();
     });
   });

@@ -1,8 +1,8 @@
 import { COMMAND } from '../../constants/commands';
 import InMemoryDB from '../../data/InMemoryDB';
 
-export const createGame = (playerId: number, roomId: number): string => {
-  const game = InMemoryDB.createGame(playerId, roomId);
+export const createGame = (roomId: number, playerId: number): string => {
+  const game = InMemoryDB.createGame(roomId, playerId);
   console.log(`Game was started in room: `, roomId);
 
   return JSON.stringify({

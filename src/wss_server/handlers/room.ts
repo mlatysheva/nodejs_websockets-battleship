@@ -23,17 +23,17 @@ export const addUserToRoom = (ws: IBsWebsocket, roomId: number): string => {
   const room = InMemoryDB.getRoomById(roomId);
   const userAlreadyInRoom = room?.roomUsers.some((user) => user.index === ws.index);
   if (userAlreadyInRoom) {
-    console.log('User already in room');
+    console.log('User is already in the room');
     return JSON.stringify({
       type: 'error',
       data: JSON.stringify({
-        message: 'You cannot add yourself twice in the room!',
+        message: 'You cannot add yourself twice to the same room',
       }),
       id: 0,
     });
   }  
   const roomPayload = InMemoryDB.addUserToRoom(ws, roomId);
-  console.log(`User ${ws.name} added to room: `, roomId);
+  console.log(`User ${ws.name} was added to room: `, roomId);
 
   return JSON.stringify({
     type: COMMAND.updateRoom,

@@ -1,31 +1,31 @@
-# RSSchool NodeJS websocket task template
-> Static http server and base task packages. 
-> By default WebSocket client tries to connect to the 3000 port.
+# RSSchool NodeJS websocket Battleship
+This is a Battleship game implemented with Node.js websocket API
 
 ## Installation
-1. Clone/download repo
-2. `npm install`
+1. Clone/download the repository at https://github.com/mlatysheva/nodejs_websockets-battleship 
+2. Run `npm install` to install the dependencies
 
 ## Usage
 **Development**
 
-`npm run start:dev`
+- Run `npm run start:dev` to start the game in the development mode
 
-* App served @ `http://localhost:8181` with nodemon
+* The app is served @ `http://localhost:8181` with nodemon
 
 **Production**
 
-`npm run start`
+- Run `npm run start` to start the game in the production mode
 
-* App served @ `http://localhost:8181` without nodemon
+* The app is served @ `http://localhost:8181` without nodemon
 
 ---
 
-**All commands**
+Two players can play the game together using separate web sockets.
 
-Command | Description
---- | ---
-`npm run start:dev` | App served @ `http://localhost:8181` with nodemon
-`npm run start` | App served @ `http://localhost:8181` without nodemon
+The websocket commands of the first player are shown on the screenshot below:
 
-**Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
+![First player](./screenshots/First_player_commands.png)
+
+The websocket commands of the second player are shown on the screenshot below:
+
+![Second player](./screenshots/Second_player_commands.png)
